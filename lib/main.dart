@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'edit_property.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,21 +12,54 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Edit Profile'),
+      initialRoute: '/editprofile',
+      routes: {
+        '/editprofile': (context) => EditProfile(title: 'Edit Profile'),
+        '/editname': (context) => EditProperty(question: 'What\'s your name?', labels: ['First Name', 'Last Name'], hintText: 'Enter name'),
+        '/editphone': (context) => EditProperty(question: 'What\'s your phone number?', labels: ['Your phone number'], hintText: 'Enter your phone number'),
+        '/editemail': (context) => EditProperty(question: 'What\'s your email?', labels: ['Your email address'], hintText: 'Enter your email address'),
+        '/editintro': (context) => EditProperty(question: 'What type of passenger are you?', labels: ['Write a little bit about yourself. Do you like chatting? Are you a smoker? Do you bring pets with you? Etc.'], hintText: 'Tell us about yourself',),
+      }
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class EditProfile extends StatefulWidget {
+  EditProfile({Key key, this.title}) : super(key: key);
 
   final String title;
+  final List<Map> userProperties = [
+    {
+      "name": "Name",
+      "route": '/editname',
+      "defaultValues": ["Mark", "Smith"]
+    },
+    {
+      "name": "Phone",
+      "route": '/editphone',
+      "fields": ["Your phone number"],
+      "defaultValues": ["123-456-789"]
+    },
+    {
+      "name": "Email",
+      "route": '/editemail',
+      "fields": ["Your email address"],
+      "defaultValues": ["a@b.com"]
+    },
+    {
+      "name": "Tell us about yourself",
+      "route": '/editintro',
+      "fields": ["TMAY text"],
+      "defaultValues": ["I'm funny"]
+    },
+  ];
+
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _EditProfileState createState() => _EditProfileState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    'Edit Profile',
+                    '${widget.title}',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 30.0,
@@ -55,26 +89,17 @@ class _MyHomePageState extends State<MyHomePage> {
                       radius: 87.0,
                       backgroundColor: Colors.blue[800],
                       child: CircleAvatar(
-                          backgroundImage: NetworkImage('https://i.ytimg.com/vi/XSqi5s3rfqk/maxresdefault.jpg'),
+                          backgroundImage: NetworkImage('https://vignette.wikia.nocookie.net/bojackhorseman/images/6/65/Therobin.png/revision/latest/window-crop/width/200/x-offset/0/y-offset/0/window-width/471/window-height/471?cb=20190201040318'),
                           radius: 80.0
                       ),
                     )
                 ),
-                UserProperty(
-                  propertyName: "Name",
-                  propertyValue: "Pickle Rick",
-                ),
-                UserProperty(
-                  propertyName: "Phone",
-                  propertyValue: "(123)-456-7890",
-                ),
-                UserProperty(
-                  propertyName: "Email",
-                  propertyValue: "rick@morty.com",
-                ),
-                UserProperty(
-                  propertyName: "Tell us about yourself",
-                  propertyValue: "Because I don’t respect therapy; because I’m a scientist; because I invent, transform, create, and destroy for a living, and when I don’t like something about the world, I change it.",
+                Column(
+                  children: widget.userProperties.map((property) => UserProperty(
+                    propertyName: property["name"],
+                    route: property["route"],
+                    values: property["defaultValues"]
+                  )).toList(),
                 ),
               ],
             ),
@@ -87,11 +112,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class UserProperty extends StatefulWidget {
   final String propertyName;
-  final String propertyValue;
+  List<String> values;
+  final String route;
 
   UserProperty({
     this.propertyName: "",
-    this.propertyValue: ""
+    this.route: "",
+    this.values
   });
 
   @override
@@ -100,50 +127,60 @@ class UserProperty extends StatefulWidget {
 
 class _UserPropertyState extends State<UserProperty> {
 
-  String textValue = 'defaultProperty';
+  List<String> currentValues = ["",""];
 
   @override
   Widget build(BuildContext context) {
     return Container(
         child: Column(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Flexible(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(4, 8, 4, 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                          child: Text(
-                            '${widget.propertyName}',
-                            style: TextStyle(
-                                color: Colors.grey[400],
-                                fontWeight: FontWeight.bold,
+            FlatButton(
+              padding: EdgeInsets.all(0.0),
+              onPressed: () async {
+                dynamic userInput = await Navigator.pushNamed(context, '${widget.route}', arguments: currentValues);
+                print(userInput);
+                setState(() {
+                  if (userInput != null){ // prevent updating when pressing back button
+                    currentValues = userInput;
+                  }
+                });
+              },
+              splashColor: Colors.transparent,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(4, 8, 4, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                            child: Text(
+                              '${widget.propertyName}',
+                              style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          '${widget.propertyValue}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900
-                          ),
-                        )
-                      ],
+                          Text(
+                            widget.propertyName == 'Name' ? '${currentValues[0]} ${currentValues[1]}' : '${currentValues[0]}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
+                  Icon(
                     Icons.chevron_right,
                     color: Colors.grey[400],
                   ),
-                )
-              ],
+                ],
+              ),
             ),
             Divider(
                 color: Colors.grey[400]

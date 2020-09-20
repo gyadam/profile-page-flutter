@@ -6,12 +6,14 @@ class EditProperty extends StatefulWidget {
   final String currentValue;
   final List<String> labels;
   final String hintText;
+  String Function(String) validator;
 
   EditProperty({
     this.question: "",
     this.labels,
     this.currentValue: "",
-    this.hintText
+    this.hintText,
+    this.validator
   });
 
   @override
@@ -21,18 +23,22 @@ class EditProperty extends StatefulWidget {
 class _EditPropertyState extends State<EditProperty> {
 
   final formKey = GlobalKey<FormState>();
+
+  // use two strings for user input, using only the first for pages with single fields and both for firstName-lastName
   List<String> userInput = ["",""];
 
   void submit(){
-    formKey.currentState.save();
-    print(userInput);
-    Navigator.pop(context, userInput);
+    if (formKey.currentState.validate()){
+      formKey.currentState.save();
+      Navigator.pop(context, userInput);
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final List<String> currentValues = ModalRoute.of(context).settings.arguments;
+    dynamic currentValues = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -84,7 +90,7 @@ class _EditPropertyState extends State<EditProperty> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                                 child: Container(
-                                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                                  padding: const EdgeInsets.all(8.0),
                                   decoration: BoxDecoration(
                                       border: Border.all(
                                           width: 1.0,
@@ -107,7 +113,7 @@ class _EditPropertyState extends State<EditProperty> {
                                       TextFormField(
                                         initialValue: currentValues[entry.key],
                                         onSaved: (input) => userInput[entry.key] = input,
-//                                          controller: textFieldController,
+                                        validator: widget.validator,
                                         maxLines: null,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,

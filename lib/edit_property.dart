@@ -6,7 +6,7 @@ class EditProperty extends StatefulWidget {
   final String currentValue;
   final List<String> labels;
   final String hintText;
-  String Function(String) validator;
+  final String Function(String) validator;
 
   EditProperty({
     this.question: "",

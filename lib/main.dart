@@ -132,7 +132,7 @@ class _EditProfileState extends State<EditProfile> {
 
 class UserProperty extends StatefulWidget {
 
-  _EditProfileState parent;
+  final _EditProfileState parent;
 
   final String property;
   final String label;

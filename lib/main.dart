@@ -6,13 +6,13 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
 
   String emailValidator(email){
-    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+    bool emailValid = email.isEmpty || RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
     return emailValid ? null : "Please enter a valid email address";
   }
 
   String phoneValidator(phoneNumber){
     // assuming 10 digit US phone numbers
-    bool phoneValid = RegExp(r"^(?:[+0]9)?[0-9]{10}$").hasMatch(phoneNumber);
+    bool phoneValid = phoneNumber.isEmpty || RegExp(r"^(?:[+0]9)?[0-9]{10}$").hasMatch(phoneNumber);
     return phoneValid ? null : "Please enter a valid 10 digit phone number";
   }
 
@@ -152,8 +152,11 @@ class UserProperty extends StatefulWidget {
 class _UserPropertyState extends State<UserProperty> {
 
   formatPhoneNumber(phoneNumber){
-    String formattedPhoneNumber = "(" + phoneNumber.substring(0,3) + ") " +
-        phoneNumber.substring(3,6) + "-" +phoneNumber.substring(6,phoneNumber.length);
+    String formattedPhoneNumber = "";
+    if (!phoneNumber.isEmpty){
+      formattedPhoneNumber = "(" + phoneNumber.substring(0,3) + ") " +
+          phoneNumber.substring(3,6) + "-" +phoneNumber.substring(6,phoneNumber.length);
+    }
     return formattedPhoneNumber;
   }
 
